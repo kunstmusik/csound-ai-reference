@@ -87,6 +87,8 @@ e
 - [ ] All variable names have correct rate prefix
 - [ ] UDOs use new-style syntax with named args
 - [ ] Orchestra header has `sr`, `ksmps`, `nchnls`, `0dbfs = 1`
+- [ ] **All single-output opcodes use functional style** (`kEnv = madsr(...)`, not `kEnv madsr ...`)
+- [ ] Statement style used ONLY for multi-output opcodes (`reverbsc`, `zdf_2pole`, etc.)
 - [ ] No `cpspch` usage
 - [ ] `expseg` values are all > 0
 - [ ] `linseg`/`expseg` argument count is odd (value, dur, value, dur, ..., value)

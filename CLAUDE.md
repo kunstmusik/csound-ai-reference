@@ -125,7 +125,7 @@ instr SubSynth
   iAmp  = (p5 / 127) * ampdbfs(-6)  ; velocity to amplitude
 
   ; k-rate: evolving over note duration
-  kEnv madsr 0.008, 0.12, 0.65, 0.35
+  kEnv = madsr(0.008, 0.12, 0.65, 0.35)
 
   ; a-rate: audio synthesis
   aSig = vco2(iAmp, iFreq, 0)       ; sawtooth oscillator
@@ -169,11 +169,24 @@ iVal = random:i(0, 100)             ; force i-rate output
 kEnv = expon:k(1, p3, 0.001)        ; force k-rate output
 ```
 
-**Note:** Some opcodes with multiple outputs cannot use `=` style and must use statement style:
+**Note:** Opcodes with **multiple outputs** cannot use `=` style and must use statement style:
 
 ```csound
 aL, aR reverbsc aDryL, aDryR, kFeedback, kCutoff
 aLP zdf_2pole aSig, kCutoff, kRes
+```
+
+**This is the ONLY exception.** All single-output opcodes — including envelopes (`linseg`, `linsegr`, `expseg`, `madsr`, `transeg`, `transegr`, etc.) — MUST use functional style:
+
+```csound
+; CORRECT: functional style for envelopes
+kEnv = madsr(0.01, 0.1, 0.7, 0.3)
+kEnv = linsegr(0, 0.01, 1, 0.1, 0.7, 0.2, 0)
+kEnv = transegr(0, 0.01, 0, 1, 0.2, -4.2, 0.7, 0.3, -4.2, 0)
+
+; WRONG: old statement style for envelopes — do not generate this
+; kEnv  madsr  0.01, 0.1, 0.7, 0.3
+; kEnv  linsegr 0, 0.01, 1, 0.1, 0.7, 0.2, 0
 ```
 
 ---
@@ -259,12 +272,13 @@ aSig = poscil(iAmp, kFreq, iFtable)     ; high-precision oscillator
 
 ### Envelopes
 ```csound
-kEnv  linseg  ia, idur1, ib, idur2, ic         ; linear segments (no release)
-kEnv  linsegr ia, idur1, ib, idur2, ic, iRel, id  ; with release segment
-kEnv  expseg  ia, idur1, ib                    ; exponential (values must be > 0)
-kEnv  expsegr ia, idur1, ib, iRel, ic          ; exponential with release
-kEnv  madsr   iAtk, iDec, iSus, iRel           ; MIDI-style ADSR
-aEnv = linen:a(iAmp, iAtk, p3, iRel)           ; simple trapezoid (a-rate)
+kEnv = linseg(ia, idur1, ib, idur2, ic)         ; linear segments (no release)
+kEnv = linsegr(ia, idur1, ib, idur2, ic, iRel, id)  ; with release segment
+kEnv = expseg(ia, idur1, ib)                    ; exponential (values must be > 0)
+kEnv = expsegr(ia, idur1, ib, iRel, ic)         ; exponential with release
+kEnv = madsr(iAtk, iDec, iSus, iRel)            ; MIDI-style ADSR
+kEnv = transegr(ia, idur1, itype1, ib, iRelDur, iRelType, ic)  ; with curve types + release
+aEnv = linen:a(iAmp, iRise, iDur, iDec)         ; simple trapezoid (a-rate)
 ```
 
 ### Filters
@@ -421,5 +435,5 @@ aSig   chnget "audioOut"
 6. **`linseg` duration mismatch** — arguments alternate `value, duration, value, duration, ..., value` — final value has no duration.
 7. **Missing `xout` in UDOs** — `xout` is always required to return values (both old and new style).
 8. **Using `outs`** — deprecated in Csound 7. Use `out(aL, aR)` instead.
-9. **Old calling style in new code** — prefer `aSig = vco2(0.5, 440)` over `aSig vco2 0.5, 440`.
+9. **Old calling style in new code** — prefer `aSig = vco2(0.5, 440)` over `aSig vco2 0.5, 440`. This applies to **all** single-output opcodes including envelopes: `kEnv = madsr(...)`, `kEnv = linsegr(...)`, `kEnv = transegr(...)`. Statement style is only for multi-output opcodes.
 10. **Wrong `distort1` args** — needs 5: `distort1(aSig, kPregain, kPostgain, kShape1, kShape2)`.

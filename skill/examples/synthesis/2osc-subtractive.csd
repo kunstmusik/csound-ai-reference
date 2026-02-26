@@ -4,9 +4,9 @@
 ; Features:
 ;   - 2x VCO2 sawtooth oscillators with detune spread
 ;   - zdf_2pole lowpass filter
+;   - transegr envelopes: linear attack, -4.2 curve decay/release
 ;   - Key tracking: filter cutoff follows pitch
 ;   - Velocity tracking: harder hits open the filter
-;   - Amplitude ADSR + filter ADSR
 ; Csound 7 new-style syntax
 ; ============================================================
 
@@ -105,13 +105,15 @@ instr TwoOscSynth
   iCutoffBase = iKeyCutoff + iVelCutoff
 
   ; --------------------------------------------------------
-  ; Envelopes
+  ; Envelopes (transegr: linear attack, -4.2 curve elsewhere)
   ; --------------------------------------------------------
-  ; Amplitude ADSR
-  kAmpEnv = madsr(0.008, 0.15, 0.65, 0.35)
+  ; Amplitude envelope: attack → peak → decay → sustain | release
+  ; Segments: 0→1 linear, 1→0.65 curve -4.2, sustain→0 curve -4.2 (release)
+  kAmpEnv = transegr(0, 0.008, 0, 1, 0.15, -4.2, 0.65, 0.35, -4.2, 0)
 
-  ; Filter envelope: brighter attack, then settles
-  kFiltEnv = linsegr(0, 0.005, 1, 0.25, 0.3, 0.4, 0)
+  ; Filter envelope: fast sweep up, curved decay, release to zero
+  ; Segments: 0→1 linear, 1→0.3 curve -4.2, 0.3→0 curve -4.2 (release)
+  kFiltEnv = transegr(0, 0.005, 0, 1, 0.25, -4.2, 0.3, 0.4, -4.2, 0)
 
   ; --------------------------------------------------------
   ; Audio path

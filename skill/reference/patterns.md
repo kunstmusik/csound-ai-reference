@@ -21,8 +21,8 @@ instr SubSynth
   iFreq  = cpsmidinn(p4)
   iAmp   = ampdbfs(-12)
 
-  kAmpEnv  madsr  0.01, 0.1, 0.7, 0.3
-  kFiltEnv madsr  0.005, 0.2, 0.4, 0.4
+  kAmpEnv  = madsr(0.01, 0.1, 0.7, 0.3)
+  kFiltEnv = madsr(0.005, 0.2, 0.4, 0.4)
 
   kCutoff = 200 + kFiltEnv * 3000   ; envelope opens filter
 
@@ -49,9 +49,9 @@ instr FMSynth
   iFreq = cpsmidinn(p4)
   iAmp  = ampdbfs(-10)
 
-  kEnv  linsegr 0, 0.01, 1, p3-0.05, 0.8, 0.05, 0
+  kEnv  = linsegr(0, 0.01, 1, p3-0.05, 0.8, 0.05, 0)
   ; Modulation index sweeps for brighter attack
-  kIdx  linsegr 5, 0.1, 1.5, p3-0.1, 1.5, 0.1, 0
+  kIdx  = linsegr(5, 0.1, 1.5, p3-0.1, 1.5, 0.1, 0)
 
   aSig = FM2Op(iFreq, 2, kIdx, iAmp)
   aOut = aSig * kEnv
@@ -86,7 +86,7 @@ instr WaveTable
   iFreq  = cpsmidinn(p5)
   iAmp   = ampdbfs(-6)
 
-  kEnv  linsegr 0, 0.005, 1, p3-0.1, 0.9, 0.1, 0
+  kEnv  = linsegr(0, 0.005, 1, p3-0.1, 0.9, 0.1, 0)
   aSig = poscil(iAmp, iFreq, iTable)    ; poscil = high-accuracy oscillator
 
   out(aSig * kEnv, aSig * kEnv)
@@ -220,7 +220,7 @@ endop
 
 ```csound
 opcode ADSR(kAtk, kDec, kSus, kRel):k
-  kEnv madsr kAtk, kDec, kSus, kRel
+  kEnv = madsr(kAtk, kDec, kSus, kRel)
   xout kEnv
 endop
 ```
@@ -241,7 +241,7 @@ endop
 ; Envelope that re-triggers on k-rate gate signal
 opcode TrigEnv(kGate, kAtk, kDec, kRel):k
   kTrig  trigger kGate, 0.5, 0    ; detect rising edge
-  kEnv   linsegr 0, 0.001, 1, kAtk, 1, kDec, 0
+  kEnv   = linsegr(0, 0.001, 1, kAtk, 1, kDec, 0)
          reinit  ; restart on trigger
   xout   kEnv
 endop
@@ -261,7 +261,7 @@ instr MIDISynth
   iVel   veloc   0, 127
   iAmp   = (iVel / 127) * 0dbfs * 0.5
 
-  kEnv   linsegr 0, 0.01, 1, 0.1, 0.8, 0.3, 0
+  kEnv   = linsegr(0, 0.01, 1, 0.1, 0.8, 0.3, 0)
   kBend  pchbend 0, 2                  ; pitch bend ±2 semitones
   kMod   midictrl 1, 0, 1              ; CC1 mod wheel, range 0-1
 

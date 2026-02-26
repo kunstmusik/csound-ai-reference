@@ -77,7 +77,7 @@ Named instruments are preferred in Csound 7:
 instr SubSynth
   iFreq = cpsmidinn(p4)
   iAmp  = ampdbfs(p5)
-  kEnv  linsegr 0, 0.01, 1, 0.1, 0.8, 0.2, 0
+  kEnv  = linsegr(0, 0.01, 1, 0.1, 0.8, 0.2, 0)
   asig  = vco2(iAmp, iFreq)
   asig *= linen:a(1, 0, p3, .01)
   out(asig * kEnv, asig * kEnv)
@@ -94,9 +94,9 @@ Use `:type` suffix for polymorphic opcodes: `linen:a()`, `random:i()`, `expon:a(
 - `aSig = poscil(iAmp, kFreq, iFtable)` — high-precision oscillator
 
 ### Envelopes
-- `kEnv linseg ia, id, ib [, id, ic ...]` — linear segments (odd arg count)
-- `kEnv linsegr ia, id, ib [, ...], iRel, iFinal` — linear with release
-- `kEnv madsr iAtk, iDec, iSus, iRel` — MIDI-style ADSR
+- `kEnv = linseg(ia, id, ib [, id, ic ...])` — linear segments (odd arg count)
+- `kEnv = linsegr(ia, id, ib [, ...], iRel, iFinal)` — linear with release
+- `kEnv = madsr(iAtk, iDec, iSus, iRel)` — MIDI-style ADSR
 
 ### Filters
 - `aOut = moogladder(aSig, kCutoff, kRes)` — Moog ladder; res 0-1
@@ -137,8 +137,9 @@ e
 6. Wrong argument count in `linseg` (must be odd: val,dur,val,dur,...,val)
 7. Missing `xout` in UDOs
 8. Using `outs` (deprecated in Csound 7) — use `out(aL, aR)` instead
-9. Not clearing global accumulators (`clear gaReverb`)
-10. Wrong `distort1` args (needs 5: aSig, kPregain, kPostgain, kShape1, kShape2)
+9. Old statement style for single-output opcodes — use `kEnv = madsr(...)` not `kEnv madsr ...`. This applies to ALL single-output opcodes including envelopes (`linseg`, `linsegr`, `madsr`, `transegr`, etc.). Statement style is only for multi-output opcodes.
+10. Not clearing global accumulators (`clear gaReverb`)
+11. Wrong `distort1` args (needs 5: aSig, kPregain, kPostgain, kShape1, kShape2)
 
 ## Consulting the Csound Manual
 

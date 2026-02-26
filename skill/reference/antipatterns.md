@@ -110,14 +110,14 @@ iFreq = 440 * pow(2, (p4 - 69) / 12)
 
 **Wrong:**
 ```csound
-kEnv  expseg  0, 0.01, 1, 0.5, 0    ; 0 values cause errors/NaN
+kEnv = expseg(0, 0.01, 1, 0.5, 0)    ; 0 values cause errors/NaN
 ```
 
 **Correct:**
 ```csound
-kEnv  expseg  0.0001, 0.01, 1, 0.5, 0.0001   ; use small positive values
+kEnv = expseg(0.0001, 0.01, 1, 0.5, 0.0001)   ; use small positive values
 ; OR use linseg if you need to go to/from zero
-kEnv  linseg  0, 0.01, 1, 0.5, 0
+kEnv = linseg(0, 0.01, 1, 0.5, 0)
 ```
 
 ---
@@ -128,14 +128,14 @@ The pattern must be: `startVal, dur1, val2, dur2, val3, ...` — always an **odd
 
 **Wrong:**
 ```csound
-kEnv  linseg  0, 0.01, 1, 0.5      ; even count — missing final value
-kEnv  linseg  0.01, 1, 0.5, 0      ; starting with duration — wrong order
+kEnv = linseg(0, 0.01, 1, 0.5)      ; even count — missing final value
+kEnv = linseg(0.01, 1, 0.5, 0)      ; starting with duration — wrong order
 ```
 
 **Correct:**
 ```csound
-kEnv  linseg  0, 0.01, 1, 0.5, 0   ; 5 args: val,dur,val,dur,val ✓
-kEnv  linseg  0, 0.01, 1            ; 3 args also valid: val,dur,val ✓
+kEnv = linseg(0, 0.01, 1, 0.5, 0)   ; 5 args: val,dur,val,dur,val ✓
+kEnv = linseg(0, 0.01, 1)            ; 3 args also valid: val,dur,val ✓
 ```
 
 ---
@@ -306,14 +306,14 @@ endin
 **Wrong:**
 ```csound
 ; Trying to force total duration using p3 — but linsegr handles release automatically
-kEnv  linsegr 0, 0.01, 1, p3 - 0.1, 0.7, 0.1, 0
+kEnv = linsegr(0, 0.01, 1, p3 - 0.1, 0.7, 0.1, 0)
 ; This can overshoot or produce wrong timings when release is triggered early
 ```
 
 **Correct:**
 ```csound
 ; Let linsegr handle it — the sustain segment stretches to fill note duration
-kEnv  linsegr 0, 0.01, 1, 0.1, 0.7, 0.2, 0
+kEnv = linsegr(0, 0.01, 1, 0.1, 0.7, 0.2, 0)
 ; attack: 0→1 in 0.01s
 ; decay: 1→0.7 in 0.1s (sustain level)
 ; sustain: 0.7 (held until note-off)
@@ -395,3 +395,27 @@ iFreq = cpsmidinn(p4)     ; convert MIDI note number from p-field
 iFreq = cpsmidinn(iNote)  ; convert MIDI note number from variable
 iFreq = cpsmidi()          ; only in MIDI-triggered instruments (reads from event)
 ```
+
+---
+
+## 19. Old-Style Statement Syntax for Single-Output Opcodes
+
+All single-output opcodes — including envelopes — must use functional calling style. The only exception is multi-output opcodes like `reverbsc` and `zdf_2pole`.
+
+**Wrong:**
+```csound
+kEnv  madsr  0.01, 0.1, 0.7, 0.3              ; old statement style
+kEnv  linsegr 0, 0.01, 1, 0.1, 0.7, 0.2, 0   ; old statement style
+kEnv  transegr 0, 0.01, 0, 1, 0.2, -4, 0.7, 0.3, -4, 0  ; old statement style
+aSig  vco2   0.5, 440                          ; old statement style
+```
+
+**Correct:**
+```csound
+kEnv = madsr(0.01, 0.1, 0.7, 0.3)
+kEnv = linsegr(0, 0.01, 1, 0.1, 0.7, 0.2, 0)
+kEnv = transegr(0, 0.01, 0, 1, 0.2, -4, 0.7, 0.3, -4, 0)
+aSig = vco2(0.5, 440)
+```
+
+**Rule:** If an opcode returns a single value, always use `variable = opcode(args)`. Statement style (`variable opcode args`) is only acceptable for multi-output opcodes where `=` is not possible.

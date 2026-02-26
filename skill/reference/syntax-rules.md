@@ -152,18 +152,21 @@ endop
 
 ### Calling Opcodes as Functions
 
-In Csound 7, **any opcode** (built-in or UDO) can be called using functional syntax:
+In Csound 7, **any opcode** (built-in or UDO) can be called using functional syntax. **Always use functional style for single-output opcodes** — this includes oscillators, envelopes, filters, and all other opcodes that return one value:
 
 ```csound
-; Functional style (Csound 7 preferred)
-asig = vco2(p5, p4)
-asig = zdf_ladder(asig, expon(10000, p3, 400), 5)
-asig *= linen:a(1, 0, p3, .01)
-pan_verb_mix(asig, 0.5, 0.2)
+; Functional style (Csound 7 — ALWAYS use for single-output opcodes)
+aSig = vco2(p5, p4)
+aSig = zdf_ladder(aSig, expon(10000, p3, 400), 5)
+aSig *= linen:a(1, 0, p3, .01)
+kEnv = madsr(0.01, 0.1, 0.7, 0.3)
+kEnv = linsegr(0, 0.01, 1, 0.1, 0.7, 0.2, 0)
+kEnv = transegr(0, 0.01, 0, 1, 0.2, -4.2, 0.7, 0.3, -4.2, 0)
+pan_verb_mix(aSig, 0.5, 0.2)
 
-; Opcode statement style (traditional, still valid)
-aSig  vco2    p5, p4
-aOut  zdf_ladder aSig, kCutoff, 5
+; Statement style — ONLY for multi-output opcodes
+aL, aR reverbsc aDryL, aDryR, kFeedback, kCutoff
+aLP zdf_2pole aSig, kCutoff, kRes
 ```
 
 **Type disambiguation** — when an opcode is polymorphic, use `:type` suffix:

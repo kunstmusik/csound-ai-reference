@@ -113,8 +113,9 @@ These prompts test AI tools' ability to generate correct Csound 7 code. Each inc
 
 **Must-have in correct output:**
 ```csound
-kEnv linseg 0, 0.05, 1, 0.2, 0.6, 0.3, 0
+kEnv = linseg(0, 0.05, 1, 0.2, 0.6, 0.3, 0)
 ```
+- Functional calling style (not `kEnv linseg 0, ...`)
 - 7 arguments (odd count: val, dur, val, dur, val, dur, val)
 - All durations in seconds (not ms)
 - `k` prefix on output variable
