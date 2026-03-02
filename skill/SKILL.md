@@ -102,6 +102,19 @@ Csound has 1500+ opcodes. For opcode signatures and detailed behavior, consult t
 - **Opcode quick reference**: https://csound.com/manual/opcodesQuickRef/
 - **Individual opcode pages**: `https://csound.com/manual/opcodes/{opcode_name}/`
 
+## Csound FLOSS Manual
+
+The **Csound FLOSS Manual** (https://flossmanual.csound.com/) is the community textbook recommended for new users. Use it for conceptual explanations, synthesis technique overviews, and practical recipes.
+
+> **Important:** FLOSS Manual examples often use **older-style syntax** — statement-style opcode calls and old-style UDOs with `xin`. Always **modernize to Csound 7 style** when drawing from this resource.
+
+Key chapters:
+- Language fundamentals (Ch. 03): https://flossmanual.csound.com/csound-language
+- Sound synthesis — additive, subtractive, AM, FM, waveshaping, granular, physical modelling (Ch. 04): https://flossmanual.csound.com/sound-synthesis
+- Sound modification — envelopes, filters, delay, reverb, spectral/PVS (Ch. 05): https://flossmanual.csound.com/sound-modification
+- MIDI (Ch. 07): https://flossmanual.csound.com/midi
+- Opcode guide with 33 essentials, top 100, and extended overview (Ch. 14A): https://flossmanual.csound.com/miscellanea/opcode-guide
+
 ## Reference Files (Skill Package)
 
 - `reference/syntax-rules.md` — full rate/type rules

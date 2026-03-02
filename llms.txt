@@ -151,6 +151,21 @@ Csound has **1500+ opcodes**. For opcode signatures, arguments, and detailed beh
   - Example: `vco2` → https://csound.com/manual/opcodes/vco2/
 - **GEN routines**: https://csound.com/manual/genIndex/
 
+## Csound FLOSS Manual
+
+The **Csound FLOSS Manual** is the community textbook recommended for new users. It provides interactive examples and practical recipes for the full Csound language.
+
+- **Home**: https://flossmanual.csound.com/
+- Getting started: https://flossmanual.csound.com/get-started
+- How-to recipes: https://flossmanual.csound.com/how-to
+- Language (variables, rates, UDOs, arrays, functional syntax): https://flossmanual.csound.com/csound-language
+- Sound synthesis (additive, subtractive, AM, FM, waveshaping, granular, physical modelling): https://flossmanual.csound.com/sound-synthesis
+- Sound modification (envelopes, filters, delay, reverb, spectral/PVS): https://flossmanual.csound.com/sound-modification
+- MIDI: https://flossmanual.csound.com/midi
+- Opcode guide (33 essentials → top 100 → extended): https://flossmanual.csound.com/miscellanea/opcode-guide
+
+> **Note:** FLOSS Manual examples may use **older-style syntax** (statement-style opcode calls, old-style UDOs with `xin`). Always modernize to Csound 7 style when using them as reference.
+
 ## Further Reference
 
 - Csound 7 Manual: https://csound.com/manual/

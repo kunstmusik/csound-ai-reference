@@ -18,6 +18,34 @@ Csound has **1500+ opcodes**. This reference covers syntax rules and common patt
 
 When unsure about an opcode's arguments or behavior, **look it up** rather than guessing.
 
+## Csound FLOSS Manual
+
+The **Csound FLOSS Manual** (https://flossmanual.csound.com/) is the community textbook and the recommended first stop for new Csound users. It contains interactive examples, conceptual explanations, and practical recipes covering the full language.
+
+> **Important:** FLOSS Manual examples often use **older-style Csound syntax** — statement-style opcode calls and old-style UDOs with `xin`. When drawing on FLOSS Manual content, always **modernize the code** to Csound 7 style (functional calling, new-style UDOs, `out()` for output).
+
+### Key chapters by topic
+
+| Topic | Chapter | URL |
+|-------|---------|-----|
+| Getting started | 01 | https://flossmanual.csound.com/get-started |
+| How-to recipes | 02 | https://flossmanual.csound.com/how-to |
+| Language: variables, rates, UDOs, arrays, functional syntax | 03 | https://flossmanual.csound.com/csound-language |
+| Additive synthesis | 04A | https://flossmanual.csound.com/sound-synthesis/additive-synthesis |
+| Subtractive synthesis | 04B | https://flossmanual.csound.com/sound-synthesis/subtractive-synthesis |
+| AM / Ring modulation | 04C | https://flossmanual.csound.com/sound-synthesis/amplitude-and-ring-modulation |
+| FM synthesis | 04D | https://flossmanual.csound.com/sound-synthesis/frequency-modulation |
+| Waveshaping | 04E | https://flossmanual.csound.com/sound-synthesis/waveshaping |
+| Granular synthesis | 04F | https://flossmanual.csound.com/sound-synthesis/granular-synthesis |
+| Physical modelling | 04G | https://flossmanual.csound.com/sound-synthesis/physical-modelling |
+| Envelopes | 05A | https://flossmanual.csound.com/sound-modification/envelopes |
+| Filters | 05C | https://flossmanual.csound.com/sound-modification/filters |
+| Delay and feedback | 05D | https://flossmanual.csound.com/sound-modification/delay-and-feedback |
+| Reverberation | 05E | https://flossmanual.csound.com/sound-modification/reverberation |
+| Spectral processing (PVS) | 05I | https://flossmanual.csound.com/sound-modification/fourier-analysis-spectral-processing |
+| MIDI | 07 | https://flossmanual.csound.com/midi |
+| Opcode guide (33 essentials → top 100 → full) | 14A | https://flossmanual.csound.com/miscellanea/opcode-guide |
+
 ---
 
 ## Variable Rate Prefixes (CRITICAL)
