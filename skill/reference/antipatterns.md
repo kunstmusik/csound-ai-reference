@@ -55,7 +55,7 @@ endin
 
 **Wrong (old-style without type strings):**
 ```csound
-opcode MyFilter
+opcode my_filter
   aSig, kCutoff xin
   aOut butlp aSig, kCutoff
   xout aOut
@@ -64,7 +64,7 @@ endop
 
 **Correct (new-style — preferred in Csound 7):**
 ```csound
-opcode MyFilter(aSig, kCutoff):a
+opcode my_filter(aSig, kCutoff):a
   aOut = butlp(aSig, kCutoff)
   xout aOut
 endop
@@ -72,7 +72,7 @@ endop
 
 **Also correct (old-style with type strings):**
 ```csound
-opcode MyFilter, a, ak
+opcode my_filter, a, ak
   aSig, kCutoff xin
   aOut butlp aSig, kCutoff
   xout aOut
@@ -146,7 +146,7 @@ In **old-style** UDOs (with type strings), `xin` is required to access inputs. I
 
 **Wrong (old-style):**
 ```csound
-opcode Scale, k, kk
+opcode scale, k, kk
   ; forgot xin — inputs not accessible
   kOut = kLow + (kHigh - kLow) * 0.5
   xout kOut
@@ -155,7 +155,7 @@ endop
 
 **Correct (old-style):**
 ```csound
-opcode Scale, k, kk
+opcode scale, k, kk
   kLow, kHigh xin            ; declare inputs with xin
   kOut = kLow + (kHigh - kLow) * 0.5
   xout kOut
@@ -164,7 +164,7 @@ endop
 
 **Correct (new-style — no xin needed):**
 ```csound
-opcode Scale(kLow, kHigh):k
+opcode scale(kLow, kHigh):k
   kOut = kLow + (kHigh - kLow) * 0.5
   xout kOut
 endop
@@ -192,7 +192,7 @@ out(aSig)             ; mono output (single channel)
 
 **Wrong:**
 ```csound
-opcode StereoGen, aa, i     ; declares two outputs
+opcode stereo_gen, aa, i     ; declares two outputs
   iFreq xin
   aSig oscili 0.5, iFreq
   xout aSig                  ; only outputting one — mismatch
@@ -201,7 +201,7 @@ endop
 
 **Correct:**
 ```csound
-opcode StereoGen, aa, i
+opcode stereo_gen, aa, i
   iFreq xin
   aSigL oscili 0.5, iFreq
   aSigR oscili 0.5, iFreq * 1.003
@@ -322,6 +322,47 @@ kEnv = linsegr(0, 0.01, 1, 0.1, 0.7, 0.2, 0)
 
 ---
 
+## 15. Writing Recursive DSP Without a Manual Sample Loop
+
+For custom filters, BBD models, and other stateful signal processors, the current sample depends on previous samples. AI tools often generate a single a-rate expression, which is the wrong structure for these algorithms.
+
+**Wrong:**
+```csound
+opcode bad_filter(aIn, kCutoff):a
+  ; This looks compact but it is not an explicit recursive sample update
+  aOut = aIn + (aOut * 0.5)
+  xout aOut
+endop
+```
+
+**Correct:**
+```csound
+opcode good_filter(aIn, kCutoff):a
+  aOut init 0
+  kz1 init 0
+  kz2 init 0
+  kindx = 0
+
+  while kindx < ksmps do
+    kIn = aIn[kindx]
+    kY = kIn + kz1
+    kz1 = kz2 - (0.5 * kY)
+    kz2 = 0.25 * kIn
+    aOut[kindx] = kY
+    kindx += 1
+  od
+
+  xout aOut
+endop
+```
+
+**Rule:** For stateful audio DSP that truly requires explicit per-sample state evolution, initialize state with `init`, iterate over the block with `while kindx < ksmps do`, read `aIn[kindx]`, update state variables, and write `aOut[kindx]` explicitly. If the processing can be expressed correctly with ordinary a-rate signals, prefer that form instead of forcing a manual loop.
+
+References such as libsyi's `diode.udo` use this exact structural pattern.
+
+
+---
+
 ## 15. String Channel Names with Spaces
 
 **Wrong:**
@@ -343,7 +384,7 @@ In new-style UDOs, arguments are named directly in the declaration. Using `xin` 
 
 **Wrong:**
 ```csound
-opcode MyOsc(iFreq, kAmp):a
+opcode my_osc(iFreq, kAmp):a
   iFreq, kAmp xin               ; ERROR: xin not needed in new-style
   aSig = oscili(kAmp, iFreq)
   xout aSig
@@ -352,7 +393,7 @@ endop
 
 **Correct:**
 ```csound
-opcode MyOsc(iFreq, kAmp):a
+opcode my_osc(iFreq, kAmp):a
   aSig = oscili(kAmp, iFreq)    ; args available directly by name
   xout aSig
 endop
@@ -404,7 +445,7 @@ All single-output opcodes — including envelopes — must use functional callin
 
 **Wrong:**
 ```csound
-kEnv  madsr  0.01, 0.1, 0.7, 0.3              ; old statement style
+kEnv  transegr 0, 0.01, 0, 1, 0.1, -4.2, 0.7, 0.3, -4.2, 0  ; old statement style
 kEnv  linsegr 0, 0.01, 1, 0.1, 0.7, 0.2, 0   ; old statement style
 kEnv  transegr 0, 0.01, 0, 1, 0.2, -4, 0.7, 0.3, -4, 0  ; old statement style
 aSig  vco2   0.5, 440                          ; old statement style
@@ -412,7 +453,7 @@ aSig  vco2   0.5, 440                          ; old statement style
 
 **Correct:**
 ```csound
-kEnv = madsr(0.01, 0.1, 0.7, 0.3)
+kEnv = transegr(0, 0.01, 0, 1, 0.1, -4.2, 0.7, 0.3, -4.2, 0)
 kEnv = linsegr(0, 0.01, 1, 0.1, 0.7, 0.2, 0)
 kEnv = transegr(0, 0.01, 0, 1, 0.2, -4, 0.7, 0.3, -4, 0)
 aSig = vco2(0.5, 440)

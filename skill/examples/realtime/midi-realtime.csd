@@ -20,11 +20,11 @@ nchnls = 2
 massign 0, "MIDISynth"
 
 ; ============================================================
-; UDO: PolyVoice — single polyphonic voice
+; UDO: poly_voice — single polyphonic voice
 ; Inputs:  iFreq, iAmp, kPitchBend (semitones), kModWheel (0-1)
 ; Outputs: stereo audio
 ; ============================================================
-opcode PolyVoice(iFreq, iAmp, kPitchBend, kModWheel):(a,a)
+opcode poly_voice(iFreq, iAmp, kPitchBend, kModWheel):(a,a)
   ; Vibrato from mod wheel
   kVibDepth = kModWheel * 0.4    ; up to ±0.4 semitones
   kVibRate  = 5.2
@@ -63,11 +63,11 @@ instr MIDISynth
   iFreq = cpsmidinn(iMidi)
   iAmp  = (iVel / 127) * ampdbfs(-8)
 
-  ; ADSR envelope with release
-  kEnv = madsr(0.008, 0.08, 0.75, 0.4)
+  ; Preferred transegr ADSR shape with curved decay and release
+  kEnv = transegr(0, 0.008, 0, 1, 0.08, -4.2, 0.75, 0.4, -4.2, 0)
 
   ; Generate voice
-  aLeft, aRight PolyVoice(iFreq, iAmp, kBend, kMod)
+  aLeft, aRight poly_voice(iFreq, iAmp, kBend, kMod)
 
   ; Apply amplitude envelope
   aLeft  *= kEnv

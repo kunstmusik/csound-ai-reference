@@ -18,7 +18,7 @@ gaRevL init 0
 gaRevR init 0
 
 ; ─────────────────────────────────────────────────────────────────────────────
-; UDO: PMPair
+; UDO: pm_pair
 ;
 ; A two-operator Phase Modulation cell, implemented via the FM-equivalent of PM.
 ;
@@ -38,7 +38,7 @@ gaRevR init 0
 ;
 ; Returns: a-rate output, normalised −1 … +1
 ; ─────────────────────────────────────────────────────────────────────────────
-opcode PMPair(iCarFreq, iModRatio, kModIdx):a
+opcode pm_pair(iCarFreq, iModRatio, kModIdx):a
   iModFreq = iCarFreq * iModRatio
   ; Cosine modulator: amplitude = β · fm  (FM-equivalent of PM index β)
   aMod     = oscili(kModIdx * iModFreq, iModFreq, giCos)

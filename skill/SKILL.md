@@ -7,8 +7,10 @@ Use this skill whenever generating, editing, or reviewing **Csound** code (`.csd
 
 1. Confirm the target version is **Csound 7** unless told otherwise
 2. Review the variable rate prefix rules (i/k/a/S/f)
-3. Use new-style UDO syntax (`opcode Name(args):returnType` / `endop`)
+3. Use new-style UDO syntax (`opcode opcode_name(args):returnType` / `endop`)
 4. Always include the standard orchestra header (`sr`, `ksmps`, `nchnls`, `0dbfs = 1`)
+5. Prefer lowercase names for user-defined opcodes; use `snake_case` when that reads better
+6. Prefer CamelCase names for instruments
 
 ## Rate Prefix Rules (Non-Negotiable)
 
@@ -25,19 +27,41 @@ Opcodes have defined output rates — match the variable prefix to the opcode's 
 
 ```csound
 ; New-style (Csound 7 — preferred)
-opcode UDOName(aSig, kParam):a
+opcode udo_name(aSig, kParam):a
   ; processing — args available directly by name
   xout result
 endop
 
 ; Multiple return values use parenthesized types
-opcode StereoProcess(aSigL, aSigR, kMix):(a,a)
+opcode stereo_process(aSigL, aSigR, kMix):(a,a)
   ; processing
   xout aOutL, aOutR
 endop
 ```
 
 Type codes for optional args: `:o` (i-rate, default 0), `:O` (k-rate, default 0), `:p`/`:P` (default 1), `:j`/`:J` (default -1).
+
+## Stateful Audio DSP UDO Pattern
+
+For custom filters, BBD lines, delay feedback structures, and other **sample-dependent audio algorithms**, use a manual per-sample loop only when the algorithm truly requires explicit per-sample state updates. If the processing can be expressed correctly with ordinary a-rate signals, prefer that form for performance and clarity.
+
+Default structure:
+- `aOut init 0`
+- persistent one-sample state in `k` variables with `init`
+- coefficient cache in `k` variables
+- `kindx = 0`
+- `while kindx < ksmps do`
+- read `kIn = aIn[kindx]`
+- process one sample, update state
+- write `aOut[kindx] = kY`
+
+Important:
+- In a manual sample loop, `kz1`, `kz2`, and similar names are still correct for one-sample state memory
+- Recompute coefficients only when relevant k-rate parameters change
+- If a parameter is audio-rate, read it per sample with `aParam[kindx]`
+- Do not try to fake recursive DSP with a single a-rate expression
+- Do not force a manual sample loop for simple feed-forward or otherwise ordinary a-rate processing
+- Use working references such as libsyi's `diode.udo` as the model for structure
 
 ## CSD File Template
 
@@ -73,7 +97,7 @@ e
 |------|---------------|----------|
 | Sine oscillator | `oscili` | `aSig = oscili(iAmp, kFreq [, iFtable])` |
 | Anti-aliased VCO | `vco2` | `aSig = vco2(iAmp, kFreq [, iMode])` |
-| ADSR envelope | `madsr` | `kEnv = madsr(iAtk, iDec, iSus, iRel)` |
+| ADSR envelope | `transegr` | `kEnv = transegr(0, iAtk, 0, 1, iDec, -4.2, iSus, iRel, -4.2, 0)` |
 | Moog filter | `moogladder` | `aOut = moogladder(aSig, kCutoff, kRes)` |
 | ZDF filter | `zdf_ladder` | `aOut = zdf_ladder(aSig, kCutoff, kRes)` |
 | Schroeder reverb | `reverbsc` | `aL, aR reverbsc aInL, aInR, kFb, kCo` |
@@ -87,13 +111,16 @@ e
 - [ ] All variable names have correct rate prefix
 - [ ] UDOs use new-style syntax with named args
 - [ ] Orchestra header has `sr`, `ksmps`, `nchnls`, `0dbfs = 1`
-- [ ] **All single-output opcodes use functional style** (`kEnv = madsr(...)`, not `kEnv madsr ...`)
+- [ ] **All single-output opcodes use functional style** (prefer `kEnv = transegr(...)`, not `kEnv transegr ...`)
 - [ ] Statement style used ONLY for multi-output opcodes (`reverbsc`, `zdf_2pole`, etc.)
 - [ ] No `cpspch` usage
 - [ ] `expseg` values are all > 0
 - [ ] `linseg`/`expseg` argument count is odd (value, dur, value, dur, ..., value)
 - [ ] UDOs have `xout` for return values
 - [ ] `out()` used for stereo output (not deprecated `outs`)
+- [ ] Recursive/stateful audio DSP UDOs use an explicit sample loop over `ksmps` only when per-sample state evolution is actually required
+- [ ] One-sample filter/delay state is stored in initialized `k` variables and updated inside the loop
+- [ ] Coefficients are cached and recomputed only when parameters change
 
 ## Consulting the Csound Manual
 

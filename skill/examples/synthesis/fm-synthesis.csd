@@ -16,12 +16,12 @@ nchnls = 2
 0dbfs  = 1
 
 ; ============================================================
-; UDO: FM2Op — two-operator FM synthesis
+; UDO: fm2op — two-operator FM synthesis
 ;
 ; FM equation: carrier = A * sin(2π * fc * t + I * sin(2π * fm * t))
 ; where I = modulation index, fc = carrier freq, fm = modulator freq
 ; ============================================================
-opcode FM2Op(iCarrFreq, iModRatio, iAmp, kIndex):a
+opcode fm2op(iCarrFreq, iModRatio, iAmp, kIndex):a
   iModFreq = iCarrFreq * iModRatio
 
   ; Modulator amplitude scales with modulator frequency * index
@@ -35,9 +35,9 @@ opcode FM2Op(iCarrFreq, iModRatio, iAmp, kIndex):a
 endop
 
 ; ============================================================
-; UDO: FM3Op — three-operator FM (modulator chain: M2 → M1 → Carrier)
+; UDO: fm3op — three-operator FM (modulator chain: M2 → M1 → Carrier)
 ; ============================================================
-opcode FM3Op(iCarrFreq, iMod1Ratio, iMod2Ratio, iAmp, kIdx1, kIdx2):a
+opcode fm3op(iCarrFreq, iMod1Ratio, iMod2Ratio, iAmp, kIdx1, kIdx2):a
   iMod1Freq = iCarrFreq * iMod1Ratio
   iMod2Freq = iCarrFreq * iMod2Ratio
 
@@ -66,7 +66,7 @@ instr FMPluck
   kAmp = linsegr(0, 0.002, 1, p3 * 0.6, 0.5, 0.15, 0)
 
   ; Integer ratio 1:2 = harmonic (octave mod), bright and bell-like
-  aSig = FM2Op(iFreq, 2, iAmp, kIndex)
+  aSig = fm2op(iFreq, 2, iAmp, kIndex)
   aOut = aSig * kAmp
 
   out(aOut, aOut)
@@ -86,7 +86,7 @@ instr EPiano
   kAmp = linsegr(0, 0.003, 1, p3 * 0.7, 0.2, 0.3, 0)
 
   ; Ratio 1:1 = FM with self — creates even harmonics
-  aSig = FM2Op(iFreq, 1, iAmp, kIndex)
+  aSig = fm2op(iFreq, 1, iAmp, kIndex)
   aOut = aSig * kAmp
 
   out(aOut, aOut)
@@ -107,7 +107,7 @@ instr Bell
   kAmp = linsegr(0, 0.005, 1, p3 * 0.8, 0.1, 0.5, 0)
 
   ; Ratios 1.4 and 2.8 are inharmonic (bell/metallic character)
-  aSig = FM3Op(iFreq, 1.4, 2.8, iAmp, kIdx1, kIdx2)
+  aSig = fm3op(iFreq, 1.4, 2.8, iAmp, kIdx1, kIdx2)
   aOut = aSig * kAmp
 
   ; Light reverb for bells

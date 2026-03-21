@@ -12,7 +12,7 @@ These prompts test AI tools' ability to generate correct Csound 7 code. Each inc
 **Must-have in correct output:**
 - `0dbfs = 1` in orchestra header
 - `vco2` or `oscili` for oscillator (not `oscil`)
-- `madsr` or `linsegr` for ADSR
+- preferably `transegr` for ADSR shape, or `linsegr` if a simpler linear ADSR was explicitly chosen
 - `ampdbfs(-10)` for amplitude (not a raw number without `0dbfs`)
 - `out(aL, aR)` for stereo output (not deprecated `outs`)
 - Variable prefixes correct: `aSig`, `kEnv`, `iAmp` etc.
@@ -28,16 +28,16 @@ These prompts test AI tools' ability to generate correct Csound 7 code. Each inc
 ## Eval 2: UDO Creation
 
 **Prompt:**
-> Write a Csound 7 UDO called `LowpassSweep` that takes an audio signal input and a k-rate sweep rate (in Hz), and returns a filtered audio signal. The filter cutoff should sweep from 200 Hz to 8000 Hz cyclically at the given rate. Use a Moog ladder filter.
+> Write a Csound 7 UDO called `lowpass_sweep` that takes an audio signal input and a k-rate sweep rate (in Hz), and returns a filtered audio signal. The filter cutoff should sweep from 200 Hz to 8000 Hz cyclically at the given rate. Use a Moog ladder filter.
 
 **Must-have in correct output:**
-- `opcode LowpassSweep(aSig, kRate):a` (new-style UDO syntax with named args)
+- `opcode lowpass_sweep(aSig, kRate):a` (new-style UDO syntax with named args)
 - `xout aOut` — output with `xout`
 - `moogladder` with correct 3-argument signature: `moogladder aSig, kCutoff, kRes`
 - Cutoff oscillation using `oscili` on k-rate variable
 
 **Common AI failures:**
-- Using old-style type strings (`opcode LowpassSweep, a, ak` with `xin`)
+- Using old-style type strings (`opcode lowpass_sweep, a, ak` with `xin`)
 - Missing `xout`
 - Wrong `moogladder` signature (missing resonance argument)
 - Using audio-rate (`a`) variable for cutoff frequency
@@ -70,16 +70,16 @@ These prompts test AI tools' ability to generate correct Csound 7 code. Each inc
 ## Eval 4: Effects Chain UDO
 
 **Prompt:**
-> Write a Csound 7 UDO called `AnalogDelay` that takes: a stereo audio input (two a-rate signals), a delay time in milliseconds (k-rate), a feedback amount (k-rate, 0-1), and returns stereo audio. The delay should have subtle saturation on the feedback path.
+> Write a Csound 7 UDO called `analog_delay` that takes: a stereo audio input (two a-rate signals), a delay time in milliseconds (k-rate), a feedback amount (k-rate, 0-1), and returns stereo audio. The delay should have subtle saturation on the feedback path.
 
 **Must-have in correct output:**
-- `opcode AnalogDelay(aSigL, aSigR, kDelayMs, kFeedback):(a,a)` — new-style with named args
+- `opcode analog_delay(aSigL, aSigR, kDelayMs, kFeedback):(a,a)` — new-style with named args
 - `vdelay` with correct ms arguments
 - `distort1` or similar for saturation on feedback
 - `xout aOutL, aOutR` — two outputs
 
 **Common AI failures:**
-- Using old-style type strings (`opcode AnalogDelay, aa, aakk` with `xin`)
+- Using old-style type strings (`opcode analog_delay, aa, aakk` with `xin`)
 - Using `delay` instead of `vdelay` (wrong opcode)
 - `reverbsc` used when delay was requested
 - Feedback applied after output (not in the loop)

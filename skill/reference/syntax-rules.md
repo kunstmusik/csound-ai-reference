@@ -72,11 +72,27 @@ Csound 7 supports two UDO syntax styles.
 ### New-Style Syntax (Csound 7 — Preferred)
 
 ```csound
-opcode Name(args):returnType
+opcode opcode_name(args):returnType
   ; body — args are directly available by name, no xin needed
   xout result
 endop
 ```
+
+Naming convention for user-defined opcodes:
+- Prefer lowercase names by default
+- Use `snake_case` when it improves readability
+- Avoid CamelCase for new UDO names
+
+## Instrument Naming
+
+For named instruments, prefer CamelCase names by default.
+
+Examples:
+- `instr SubSynth`
+- `instr FMBell`
+- `instr PadVoice`
+
+Use numbered instruments only when maintaining legacy code or when numbers are specifically required.
 
 **Input types are inferred from arg name prefixes or declared with `:type` annotations:**
 ```csound
@@ -124,7 +140,7 @@ endop
 ### Old-Style Syntax (Still Valid)
 
 ```csound
-opcode Name, outTypes, inTypes
+opcode opcode_name, outTypes, inTypes
   [inputs xin]
   ; body
   [xout outputs]
@@ -159,7 +175,7 @@ In Csound 7, **any opcode** (built-in or UDO) can be called using functional syn
 aSig = vco2(p5, p4)
 aSig = zdf_ladder(aSig, expon(10000, p3, 400), 5)
 aSig *= linen:a(1, 0, p3, .01)
-kEnv = madsr(0.01, 0.1, 0.7, 0.3)
+kEnv = transegr(0, 0.01, 0, 1, 0.1, -4.2, 0.7, 0.3, -4.2, 0)
 kEnv = linsegr(0, 0.01, 1, 0.1, 0.7, 0.2, 0)
 kEnv = transegr(0, 0.01, 0, 1, 0.2, -4.2, 0.7, 0.3, -4.2, 0)
 pan_verb_mix(aSig, 0.5, 0.2)
@@ -178,34 +194,80 @@ iLen = lenarray:i(kArr)            ; force i-rate
 arr:k[] = genarray:k[](0, 10)     ; k-rate array output
 ```
 
+### Stateful Audio DSP UDOs
+
+For recursive filters, BBD models, waveguides, companders with memory, and other algorithms where each output sample depends on previous samples, first ask whether the design can be expressed correctly with ordinary a-rate processing. If it can, prefer the ordinary a-rate form for performance and clarity. If it cannot, write the UDO as a **manual sample loop**.
+
+This is the canonical structure:
+
+```csound
+opcode process(aIn, kParam):a
+  aOut init 0
+  kz1 init 0
+  kz2 init 0
+  kLastParam init -1
+  kb0 init 0
+  kb1 init 0
+  kb2 init 0
+  ka1 init 0
+  ka2 init 0
+
+  if kLastParam != kParam then
+    ; recompute cached coefficients
+    kLastParam = kParam
+  endif
+
+  kindx = 0
+  while kindx < ksmps do
+    kIn = aIn[kindx]
+    kY = (kb0 * kIn) + kz1
+    kz1 = (kb1 * kIn) - (ka1 * kY) + kz2
+    kz2 = (kb2 * kIn) - (ka2 * kY)
+    aOut[kindx] = kY
+    kindx += 1
+  od
+
+  xout aOut
+endop
+```
+
+Rules:
+- Use `aOut init 0` and write samples explicitly with `aOut[kindx]`
+- Use initialized `k` variables for one-sample memory and coefficient caches
+- Recompute coefficients outside the per-sample math whenever the driving parameter is only k-rate
+- If modulation is audio-rate, read it per sample inside the loop: `kCutoff = aCutoff[kindx]`
+- Prefer separate overloads for k-rate and a-rate control versions if the algorithm becomes materially different
+- Do not assume recursive DSP can be collapsed into one a-rate expression
+- Do not introduce a manual sample loop when a normal a-rate opcode graph already expresses the algorithm correctly
+
 ### Examples (New-Style — Preferred)
 
 ```csound
 ; No inputs, stereo audio output (use multiple return values)
-opcode StereoNoise():(a,a)
+opcode stereo_noise():(a,a)
   aNoise1 = random:a(-1, 1)
   aNoise2 = random:a(-1, 1)
   xout aNoise1, aNoise2
 endop
 
 ; i-rate freq, k-rate amp, a-rate output
-opcode ToneGen(iFreq, kAmp):a
+opcode tone_gen(iFreq, kAmp):a
   aSig = oscili(kAmp, iFreq)
   xout aSig
 endop
 
 ; Optional argument with :o (defaults to 0)
-opcode SoftClip(aSig, kDrive, kThreshold:O):a
+opcode soft_clip(aSig, kDrive, kThreshold:O):a
   kThresh = (kThreshold == 0) ? 0.8 : kThreshold
   aOut = distort1(aSig, kDrive, kThresh, 0, 0)
   xout aOut
 endop
 
 ; Recursive UDO
-opcode Harmonics(iBaseFreq, iNumHarmonics, iHarmonic):a
+opcode harmonics(iBaseFreq, iNumHarmonics, iHarmonic):a
   aSig = oscili(1/iHarmonic, iBaseFreq * iHarmonic)
   if iHarmonic < iNumHarmonics then
-    aSub = Harmonics(iBaseFreq, iNumHarmonics, iHarmonic + 1)
+    aSub = harmonics(iBaseFreq, iNumHarmonics, iHarmonic + 1)
     aSig += aSub
   endif
   xout aSig
@@ -228,13 +290,13 @@ endop
 ### Examples (Old-Style — Still Valid)
 
 ```csound
-opcode StereoNoise, aa, 0
+opcode stereo_noise, aa, 0
   aNoise1 rand 1
   aNoise2 rand 1
   xout aNoise1, aNoise2
 endop
 
-opcode ToneGen, a, ik
+opcode tone_gen, a, ik
   iFreq, kAmp xin
   aSig oscili kAmp, iFreq
   xout aSig
@@ -302,7 +364,7 @@ points:Point[] init 4
 points[0].x = 100
 
 ; Structs in UDOs
-opcode processPoint(p:Point):Point
+opcode process_point(p:Point):Point
   result:Point init p.x + 1, p.y + 1
   xout result
 endop

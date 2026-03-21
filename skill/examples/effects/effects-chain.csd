@@ -16,9 +16,9 @@ nchnls = 2
 0dbfs  = 1
 
 ; ============================================================
-; UDO: StereoReverb — wet/dry reverb with room control
+; UDO: stereo_reverb — wet/dry reverb with room control
 ; ============================================================
-opcode StereoReverb(aDryL, aDryR, kRoom, kWetMix):(a,a)
+opcode stereo_reverb(aDryL, aDryR, kRoom, kWetMix):(a,a)
   ; Clamp room size to safe range
   kSafeRoom = (kRoom > 0.97) ? 0.97 : kRoom
 
@@ -31,9 +31,9 @@ opcode StereoReverb(aDryL, aDryR, kRoom, kWetMix):(a,a)
 endop
 
 ; ============================================================
-; UDO: TapeDelay — tempo-synced delay with feedback and saturation
+; UDO: tape_delay — tempo-synced delay with feedback and saturation
 ; ============================================================
-opcode TapeDelay(aSigL, aSigR, kBPM, kFeedback, iSubdiv):(a,a)
+opcode tape_delay(aSigL, aSigR, kBPM, kFeedback, iSubdiv):(a,a)
   ; Convert BPM to delay time in ms
   kDelayMs = (60000 / kBPM) / iSubdiv
   iMaxMs   = 3000
@@ -53,9 +53,9 @@ opcode TapeDelay(aSigL, aSigR, kBPM, kFeedback, iSubdiv):(a,a)
 endop
 
 ; ============================================================
-; UDO: Saturator — soft harmonic saturation (drive + mix)
+; UDO: saturator — soft harmonic saturation (drive + mix)
 ; ============================================================
-opcode Saturator(aSigL, aSigR, kDrive, kMix):(a,a)
+opcode saturator(aSigL, aSigR, kDrive, kMix):(a,a)
   ; Gain staging before clipping
   aDrivenL = aSigL * kDrive
   aDrivenR = aSigR * kDrive
@@ -74,9 +74,9 @@ opcode Saturator(aSigL, aSigR, kDrive, kMix):(a,a)
 endop
 
 ; ============================================================
-; UDO: SimpleEQ — 3-band shelf + presence boost
+; UDO: simple_eq — 3-band shelf + presence boost
 ; ============================================================
-opcode SimpleEQ(aSigL, aSigR, kLowGain, kMidCut, kHighGain):(a,a)
+opcode simple_eq(aSigL, aSigR, kLowGain, kMidCut, kHighGain):(a,a)
   ; Low shelf ~120Hz
   aLowL = butlp(aSigL, 120)
   aLowR = butlp(aSigR, 120)
@@ -111,7 +111,7 @@ instr PadVoice
   iFreq = cpsmidinn(p4)
   iAmp  = ampdbfs(-12)
 
-  kEnv = madsr(0.3, 0.1, 0.8, 0.8)
+  kEnv = transegr(0, 0.3, 0, 1, 0.1, -4.2, 0.8, 0.8, -4.2, 0)
 
   ; Slightly detuned pair for width
   aSaw1  = vco2(iAmp * 0.5, iFreq, 0)
@@ -135,16 +135,16 @@ instr Master
   aDryR = chnget:a("synth_R")
 
   ; 1. Saturation (subtle warmth)
-  aSatL, aSatR Saturator(aDryL, aDryR, 1.8, 0.3)
+  aSatL, aSatR saturator(aDryL, aDryR, 1.8, 0.3)
 
   ; 2. 3-Band EQ (boost lows, slight mid scoop, presence)
-  aEQL, aEQR SimpleEQ(aSatL, aSatR, 1.2, 0.85, 1.15)
+  aEQL, aEQR simple_eq(aSatL, aSatR, 1.2, 0.85, 1.15)
 
   ; 3. Tempo-synced ping-pong delay (8th notes)
-  aDelL, aDelR TapeDelay(aEQL, aEQR, iBPM, 0.4, 2)
+  aDelL, aDelR tape_delay(aEQL, aEQR, iBPM, 0.4, 2)
 
   ; 4. Reverb
-  aRevL, aRevR StereoReverb(aDelL, aDelR, 0.82, 0.35)
+  aRevL, aRevR stereo_reverb(aDelL, aDelR, 0.82, 0.35)
 
   ; Output with slight limiting (soft clip the master)
   aOutL = distort1(aRevL, 1, 0.95, 0, 0)

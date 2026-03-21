@@ -28,6 +28,7 @@ Examples:
 - `moogladder` → https://csound.com/manual/opcodes/moogladder/
 - `reverbsc` → https://csound.com/manual/opcodes/reverbsc/
 - `linseg` → https://csound.com/manual/opcodes/linseg/
+- `transegr` → https://csound.com/manual/opcodes/transegr/
 - `madsr` → https://csound.com/manual/opcodes/madsr/
 
 ### Category Pages
@@ -83,6 +84,8 @@ Browse opcodes by category:
 
 The opcodes below are frequently used in Csound synthesis. For full documentation on any of these, visit its manual page. Use **functional calling style** — see CLAUDE.md.
 
+For user-defined opcodes, prefer lowercase names by default. Use `snake_case` when it improves readability. Avoid CamelCase for new UDO names.
+
 ### Oscillators
 - `oscili(xAmp, xCps [, iFn])` — interpolating oscillator (default sine)
 - `vco2(kAmp, kCps [, iMode, kPw])` — anti-aliased VCO (0=saw, 2=square/PWM, 10=square, 12=triangle)
@@ -93,7 +96,8 @@ The opcodes below are frequently used in Csound synthesis. For full documentatio
 - `linseg(ia, idur1, ib [, idur2, ic ...])` — linear segments
 - `linsegr(ia, idur1, ib [, ...], iRelDur, iFinal)` — linear with release
 - `expseg(ia, idur1, ib [...])` — exponential (all values > 0)
-- `madsr(iAtk, iDec, iSus, iRel)` — MIDI-aware ADSR
+- `transegr(0, iAtk, 0, 1, iDec, -4.2, iSus, iRel, -4.2, 0)` — preferred ADSR-style envelope
+- `madsr(iAtk, iDec, iSus, iRel)` — simpler MIDI-aware ADSR
 - `linen:a(xAmp, iRise, iDur, iDec)` — simple trapezoid
 
 ### Filters

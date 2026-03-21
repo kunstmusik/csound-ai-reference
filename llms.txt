@@ -10,6 +10,8 @@ Csound is a sound design and signal processing language. Programs are `.csd` fil
 
 This reference targets **Csound 7**. Key changes from Csound 6:
 - New-style UDO syntax with named arguments (preferred over old type-string style)
+- Lowercase names for user-defined opcodes are preferred; `snake_case` is acceptable
+- CamelCase names are preferred for instruments
 - Functional opcode calling syntax: `asig = vco2(0.5, 440)`
 - Explicit type annotations: `glid:k`, `sig:a`
 - `outs` deprecated — use `out(aL, aR)` for stereo output
@@ -48,12 +50,12 @@ nchnls = 2       ; output channels
 
 **New-style (Csound 7 — preferred):**
 ```csound
-opcode Saturate(asig, ksat):a
+opcode saturate(asig, ksat):a
   xout tanh(asig * ksat) / tanh(ksat)
 endop
 
 ; Multiple returns use parenthesized types
-opcode StereoWidth(aSig, kWidth):(a,a)
+opcode stereo_width(aSig, kWidth):(a,a)
   aDel = vdelay(aSig, kWidth * 12, 20)
   xout aSig, aDel
 endop
@@ -63,21 +65,66 @@ Arguments are named in the declaration — no `xin` needed. Types inferred from 
 
 **Old-style (still valid):**
 ```csound
-opcode Name, outputTypeString, inputTypeString
+opcode opcode_name, outputTypeString, inputTypeString
   in1, in2 xin
   xout out1
 endop
 ```
 
+For user-defined opcodes, prefer lowercase names. Use `snake_case` when it improves readability. Avoid CamelCase for new UDOs.
+
+### Stateful Audio DSP UDO Pattern
+
+When a UDO implements **recursive or stateful audio processing** such as custom filters, BBD lines, delay networks, or waveguides, first ask whether ordinary a-rate processing is sufficient. If it is, prefer the normal a-rate form for performance and clarity. If the algorithm truly depends on explicit per-sample state updates, do not try to write it as a single a-rate expression; use an explicit **sample-by-sample loop** over the current control block.
+
+This is the structure used by reliable references such as libsyi's `diode.udo`.
+
+Core rules:
+- Initialize the output signal with `aOut init 0`
+- Store one-sample memories and cached coefficients in `k` variables with `init`
+- Recompute coefficients only when a k-rate parameter changes
+- Loop with `kindx = 0` and `while kindx < ksmps do`
+- Read current audio samples as `kIn = aIn[kindx]`
+- If a parameter is audio-rate, read it per sample too: `kCutoff = aCutoff[kindx]`
+- Write output samples explicitly: `aOut[kindx] = kY`
+
+Example skeleton:
+
+```csound
+opcode my_process(aIn, kParam):a
+  aOut init 0
+  kz1 init 0
+  kz2 init 0
+  kLastParam init -1
+
+  if kLastParam != kParam then
+    ; update coefficients
+    kLastParam = kParam
+  endif
+
+  kindx = 0
+  while kindx < ksmps do
+    kIn = aIn[kindx]
+    kY = kIn + kz1
+    kz1 = kz2 - (0.5 * kY)
+    kz2 = 0.25 * kIn
+    aOut[kindx] = kY
+    kindx += 1
+  od
+
+  xout aOut
+endop
+```
+
 ### Instrument
 
-Named instruments are preferred in Csound 7:
+Named instruments are preferred in Csound 7, and instrument names should generally use CamelCase:
 
 ```csound
 instr SubSynth
   iFreq = cpsmidinn(p4)
   iAmp  = ampdbfs(p5)
-  kEnv  = linsegr(0, 0.01, 1, 0.1, 0.8, 0.2, 0)
+  kEnv  = transegr(0, 0.01, 0, 1, 0.1, -4.2, 0.8, 0.2, -4.2, 0)
   asig  = vco2(iAmp, iFreq)
   asig *= linen:a(1, 0, p3, .01)
   out(asig * kEnv, asig * kEnv)
@@ -96,7 +143,8 @@ Use `:type` suffix for polymorphic opcodes: `linen:a()`, `random:i()`, `expon:a(
 ### Envelopes
 - `kEnv = linseg(ia, id, ib [, id, ic ...])` — linear segments (odd arg count)
 - `kEnv = linsegr(ia, id, ib [, ...], iRel, iFinal)` — linear with release
-- `kEnv = madsr(iAtk, iDec, iSus, iRel)` — MIDI-style ADSR
+- `kEnv = transegr(0, iAtk, 0, 1, iDec, -4.2, iSus, iRel, -4.2, 0)` — preferred ADSR-style envelope
+- `kEnv = madsr(iAtk, iDec, iSus, iRel)` — simple MIDI-style ADSR when an explicit curve is not needed
 
 ### Filters
 - `aOut = moogladder(aSig, kCutoff, kRes)` — Moog ladder; res 0-1
@@ -137,9 +185,10 @@ e
 6. Wrong argument count in `linseg` (must be odd: val,dur,val,dur,...,val)
 7. Missing `xout` in UDOs
 8. Using `outs` (deprecated in Csound 7) — use `out(aL, aR)` instead
-9. Old statement style for single-output opcodes — use `kEnv = madsr(...)` not `kEnv madsr ...`. This applies to ALL single-output opcodes including envelopes (`linseg`, `linsegr`, `madsr`, `transegr`, etc.). Statement style is only for multi-output opcodes.
+9. Old statement style for single-output opcodes — use `kEnv = transegr(...)` not `kEnv transegr ...`. This applies to ALL single-output opcodes including envelopes (`linseg`, `linsegr`, `madsr`, `transegr`, etc.). Statement style is only for multi-output opcodes.
 10. Not clearing global accumulators (`clear gaReverb`)
 11. Wrong `distort1` args (needs 5: aSig, kPregain, kPostgain, kShape1, kShape2)
+12. Writing recursive signal processors as one a-rate expression instead of a per-sample `while kindx < ksmps` loop with explicit state updates
 
 ## Consulting the Csound Manual
 

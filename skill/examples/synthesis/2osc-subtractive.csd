@@ -22,13 +22,13 @@ nchnls = 2
 0dbfs  = 1
 
 ; ============================================================
-; UDO: TwoOscVoice — dual detuned sawtooth oscillators
+; UDO: two_osc_voice — dual detuned sawtooth oscillators
 ; iFreq     = base pitch in Hz
 ; iAmp      = linear amplitude
 ; iDetuneCt = detune spread in cents (each osc offset ±half)
 ; Returns mixed mono audio signal
 ; ============================================================
-opcode TwoOscVoice(iFreq, iAmp, iDetuneCt):a
+opcode two_osc_voice(iFreq, iAmp, iDetuneCt):a
   ; Split detune: osc1 flat, osc2 sharp by half the spread
   iHalfCents = iDetuneCt * 0.5
   iFreq1     = iFreq * semitone(-iHalfCents / 100)
@@ -45,7 +45,7 @@ opcode TwoOscVoice(iFreq, iAmp, iDetuneCt):a
 endop
 
 ; ============================================================
-; UDO: FilteredVoice — zdf_2pole LPF with envelope input
+; UDO: filtered_voice — zdf_2pole LPF with envelope input
 ; aSig        = audio input
 ; kCutoffBase = base cutoff (Hz) after key + velocity tracking
 ; kFilterEnv  = 0..1 filter envelope signal
@@ -53,7 +53,7 @@ endop
 ; kRes        = filter resonance / Q (0..1 typical)
 ; Returns filtered audio
 ; ============================================================
-opcode FilteredVoice(aSig, kCutoffBase, kFilterEnv, iEnvAmt, kRes):a
+opcode filtered_voice(aSig, kCutoffBase, kFilterEnv, iEnvAmt, kRes):a
   ; Apply envelope sweep on top of base cutoff
   kCutoff = kCutoffBase + kFilterEnv * iEnvAmt
 
@@ -119,10 +119,10 @@ instr TwoOscSynth
   ; Audio path
   ; --------------------------------------------------------
   ; Dual detuned oscillators
-  aRaw = TwoOscVoice(iFreq, iAmpLin, iDetune)
+  aRaw = two_osc_voice(iFreq, iAmpLin, iDetune)
 
   ; ZDF 2-pole lowpass filter
-  aFilt = FilteredVoice(aRaw, iCutoffBase, kFiltEnv, iEnvAmt, iRes)
+  aFilt = filtered_voice(aRaw, iCutoffBase, kFiltEnv, iEnvAmt, iRes)
 
   ; Apply amplitude envelope
   aOut = aFilt * kAmpEnv

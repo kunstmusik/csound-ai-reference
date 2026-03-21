@@ -1,6 +1,6 @@
 ; ============================================================
 ; basic-subtractive.csd
-; Demonstrates: vco2, moogladder, madsr, linsegr, UDO, MIDI-to-Hz
+; Demonstrates: vco2, moogladder, transegr, linsegr, UDO, MIDI-to-Hz
 ; Csound 7 new-style syntax
 ; ============================================================
 
@@ -16,9 +16,9 @@ nchnls = 2
 0dbfs  = 1
 
 ; ============================================================
-; UDO: MonoSub — single-oscillator subtractive voice
+; UDO: mono_sub — single-oscillator subtractive voice
 ; ============================================================
-opcode MonoSub(iFreq, iAmp, kFilterEnv):a
+opcode mono_sub(iFreq, iAmp, kFilterEnv):a
   ; Anti-aliased sawtooth oscillator
   aSaw = vco2(iAmp, iFreq, 0)
 
@@ -32,9 +32,9 @@ opcode MonoSub(iFreq, iAmp, kFilterEnv):a
 endop
 
 ; ============================================================
-; UDO: StereoWidth — mono-to-stereo via Haas-style delay
+; UDO: stereo_width — mono-to-stereo via Haas-style delay
 ; ============================================================
-opcode StereoWidth(aSig, kWidth):(a,a)
+opcode stereo_width(aSig, kWidth):(a,a)
   ; Small delay on one channel creates stereo spread
   kDelayMs = kWidth * 12   ; 0-12ms spread
   aDel = vdelay(aSig, kDelayMs, 20)
@@ -56,8 +56,8 @@ instr SubSynth
   iFreq = cpsmidinn(iMidi)
   iAmp  = (iVel / 127) * ampdbfs(-6)
 
-  ; Amplitude envelope (ADSR)
-  kAmpEnv = madsr(0.008, 0.12, 0.65, 0.35)
+  ; Amplitude envelope (preferred transegr ADSR shape)
+  kAmpEnv = transegr(0, 0.008, 0, 1, 0.12, -4.2, 0.65, 0.35, -4.2, 0)
 
   ; Filter envelope (faster attack than amp)
   kFiltEnv = linsegr(0, 0.004, 1, 0.2, 0.3, 0.4, 0)
@@ -66,13 +66,13 @@ instr SubSynth
   kFilterDrive = kFiltEnv * iEnvAmt
 
   ; Synthesize voice
-  aMono = MonoSub(iFreq, iAmp, kFilterDrive)
+  aMono = mono_sub(iFreq, iAmp, kFilterDrive)
 
   ; Apply amplitude envelope
   aMono *= kAmpEnv
 
   ; Stereo spread
-  aLeft, aRight StereoWidth(aMono, 0.5)
+  aLeft, aRight stereo_width(aMono, 0.5)
 
   out(aLeft, aRight)
 endin

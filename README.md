@@ -52,7 +52,9 @@ csound-ai-reference/
 ## Csound Version
 
 All examples and guidance target **Csound 7** with:
-- New-style UDO syntax with named arguments: `opcode Name(args):returnType`
+- New-style UDO syntax with named arguments: `opcode opcode_name(args):returnType`
+- User-defined opcode names in lowercase by default; `snake_case` is acceptable and preferred over CamelCase
+- Instrument names in CamelCase by default
 - Functional opcode calling syntax: `asig = vco2(0.5, 440)`
 - `outs` deprecated — use `out(aL, aR)` for stereo output
 - `pch` / `cpspch` patterns replaced with direct Hz or MIDI-to-Hz conversion
