@@ -24,6 +24,53 @@ The **Csound FLOSS Manual** (https://flossmanual.csound.com/) is the community t
 
 > **Important:** FLOSS Manual examples often use **older-style Csound syntax** — statement-style opcode calls and old-style UDOs with `xin`. When drawing on FLOSS Manual content, always **modernize the code** to Csound 7 style (functional calling, new-style UDOs, `out()` for output).
 
+## csdoc Comment Format
+
+If you generate comments for UDOs, instruments, or structs, use **csdoc** format so the code can be parsed by https://github.com/kunstmusik/csdoc.
+
+Rules:
+- Use `/** ... */` docblocks immediately before the `opcode`, `instr`, or `struct` definition
+- Use normal prose in the description body; Markdown is acceptable
+- Use `@param` for UDO arguments and instrument p-fields
+- Use `@return` or `@returns` for UDO return values
+- Types are optional in tags, but names and descriptions should be explicit
+- Prefer csdoc docblocks over ad hoc block comments when documenting definitions
+
+UDO example:
+
+```csound
+/**
+ * Simple gain UDO.
+ *
+ * Applies linear gain to an audio signal.
+ *
+ * @param aIn Input audio signal
+ * @param kGain Gain multiplier
+ * @return aOut Processed audio signal
+ */
+opcode gain(aIn, kGain):a
+  aOut = aIn * kGain
+  xout aOut
+endop
+```
+
+Instrument example:
+
+```csound
+/**
+ * Simple subtractive synth voice.
+ *
+ * @param p4 MIDI note number
+ * @param p5 MIDI velocity
+ */
+instr SubSynth
+  iFreq = cpsmidinn(p4)
+  iAmp = (p5 / 127) * ampdbfs(-6)
+  aSig = vco2(iAmp, iFreq)
+  out(aSig, aSig)
+endin
+```
+
 ### Key chapters by topic
 
 | Topic | Chapter | URL |

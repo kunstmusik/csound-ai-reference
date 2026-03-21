@@ -17,6 +17,33 @@ This reference targets **Csound 7**. Key changes from Csound 6:
 - `outs` deprecated — use `out(aL, aR)` for stereo output
 - Improved array and struct support
 
+## csdoc Comment Format
+
+If comments are generated for UDOs, instruments, or structs, use **csdoc** docblocks so the code is compatible with https://github.com/kunstmusik/csdoc.
+
+Rules:
+- Use `/** ... */` immediately before the definition
+- Use `@param` for UDO parameters and instrument p-fields
+- Use `@return` or `@returns` for UDO return values
+- Markdown is allowed in the description body
+- Types in tags are optional
+
+Example:
+
+```csound
+/**
+ * Gain control UDO.
+ *
+ * @param aIn Input audio signal
+ * @param kGain Gain multiplier
+ * @return aOut Processed audio signal
+ */
+opcode gain(aIn, kGain):a
+  aOut = aIn * kGain
+  xout aOut
+endop
+```
+
 ## Core Concepts
 
 ### Variable Rate Prefixes

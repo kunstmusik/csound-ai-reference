@@ -94,6 +94,47 @@ Examples:
 
 Use numbered instruments only when maintaining legacy code or when numbers are specifically required.
 
+## csdoc Documentation Blocks
+
+If comments are generated for UDOs, instruments, or structs, use **csdoc**-compatible docblocks.
+
+Rules:
+- Place a `/** ... */` block immediately before the definition
+- Use freeform description text in the body; Markdown is acceptable
+- Use `@param` for UDO arguments and instrument p-fields
+- Use `@return` or `@returns` for UDO return values
+- Types in tags are optional
+
+Example UDO docblock:
+
+```csound
+/**
+ * One-pole lowpass filter.
+ *
+ * @param aIn Input audio signal
+ * @param kCutoff Cutoff frequency in Hz
+ * @return aOut Filtered audio output
+ */
+opcode onepole_lp(aIn, kCutoff):a
+  aOut = tone(aIn, kCutoff)
+  xout aOut
+endop
+```
+
+Example instrument docblock:
+
+```csound
+/**
+ * Simple FM bell instrument.
+ *
+ * @param p4 MIDI note number
+ * @param p5 Velocity
+ */
+instr FMBell
+  ; ...
+endin
+```
+
 **Input types are inferred from arg name prefixes or declared with `:type` annotations:**
 ```csound
 ; Type inferred from i-prefix

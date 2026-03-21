@@ -11,6 +11,7 @@ Use this skill whenever generating, editing, or reviewing **Csound** code (`.csd
 4. Always include the standard orchestra header (`sr`, `ksmps`, `nchnls`, `0dbfs = 1`)
 5. Prefer lowercase names for user-defined opcodes; use `snake_case` when that reads better
 6. Prefer CamelCase names for instruments
+7. If comments are generated for definitions, use csdoc `/** ... */` docblocks with `@param` and `@return`
 
 ## Rate Prefix Rules (Non-Negotiable)
 
@@ -40,6 +41,32 @@ endop
 ```
 
 Type codes for optional args: `:o` (i-rate, default 0), `:O` (k-rate, default 0), `:p`/`:P` (default 1), `:j`/`:J` (default -1).
+
+## csdoc Documentation Format
+
+If you generate comments for UDOs, instruments, or structs, follow **csdoc** format.
+
+Requirements:
+- Put a `/** ... */` docblock immediately before the definition
+- Use `@param` for UDO parameters and instrument p-fields
+- Use `@return` or `@returns` for UDO outputs
+- Keep descriptions concrete and concise
+
+Example:
+
+```csound
+/**
+ * Filtered synth voice.
+ *
+ * @param aIn Input audio signal
+ * @param kCutoff Filter cutoff in Hz
+ * @return aOut Filtered audio signal
+ */
+opcode filtered_voice(aIn, kCutoff):a
+  aOut = butlp(aIn, kCutoff)
+  xout aOut
+endop
+```
 
 ## Stateful Audio DSP UDO Pattern
 

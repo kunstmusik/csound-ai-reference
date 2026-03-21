@@ -35,6 +35,7 @@ These prompts test AI tools' ability to generate correct Csound 7 code. Each inc
 - `xout aOut` — output with `xout`
 - `moogladder` with correct 3-argument signature: `moogladder aSig, kCutoff, kRes`
 - Cutoff oscillation using `oscili` on k-rate variable
+- If comments are included, they should use csdoc `/** ... */` format with `@param` and `@return`
 
 **Common AI failures:**
 - Using old-style type strings (`opcode lowpass_sweep, a, ak` with `xin`)
