@@ -22,7 +22,7 @@ opcode stereo_reverb(aDryL, aDryR, kRoom, kWetMix):(a,a)
   ; Clamp room size to safe range
   kSafeRoom = (kRoom > 0.97) ? 0.97 : kRoom
 
-  aWetL, aWetR reverbsc aDryL, aDryR, kSafeRoom, 7500
+  aWetL, aWetR = reverbsc(aDryL, aDryR, kSafeRoom, 7500)
 
   aOutL = ntrpol(aDryL, aWetL, kWetMix)
   aOutR = ntrpol(aDryR, aWetR, kWetMix)

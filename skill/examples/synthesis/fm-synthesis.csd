@@ -111,7 +111,7 @@ instr Bell
   aOut = aSig * kAmp
 
   ; Light reverb for bells
-  aRevL, aRevR reverbsc aOut, aOut, 0.88, 6000
+  aRevL, aRevR = reverbsc(aOut, aOut, 0.88, 6000)
   aMixL = aOut * 0.5 + aRevL * 0.5
   aMixR = aOut * 0.5 + aRevR * 0.5
 

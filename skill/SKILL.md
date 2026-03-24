@@ -127,7 +127,7 @@ e
 | ADSR envelope | `transegr` | `kEnv = transegr(0, iAtk, 0, 1, iDec, -4.2, iSus, iRel, -4.2, 0)` |
 | Moog filter | `moogladder` | `aOut = moogladder(aSig, kCutoff, kRes)` |
 | ZDF filter | `zdf_ladder` | `aOut = zdf_ladder(aSig, kCutoff, kRes)` |
-| Schroeder reverb | `reverbsc` | `aL, aR reverbsc aInL, aInR, kFb, kCo` |
+| Schroeder reverb | `reverbsc` | `aL, aR = reverbsc(aInL, aInR, kFb, kCo)` |
 | Variable delay | `vdelay` | `aDel = vdelay(aSig, kDelayMs, iMaxMs)` |
 | MIDI note→Hz | `cpsmidinn` | `iFreq = cpsmidinn(iMidiNote)` |
 | dB→amplitude | `ampdbfs` | `iAmp = ampdbfs(iDb)` |
@@ -138,8 +138,8 @@ e
 - [ ] All variable names have correct rate prefix
 - [ ] UDOs use new-style syntax with named args
 - [ ] Orchestra header has `sr`, `ksmps`, `nchnls`, `0dbfs = 1`
-- [ ] **All single-output opcodes use functional style** (prefer `kEnv = transegr(...)`, not `kEnv transegr ...`)
-- [ ] Statement style used ONLY for multi-output opcodes (`reverbsc`, `zdf_2pole`, etc.)
+- [ ] **All opcodes use functional style** (single: `x = func(...)`, multi-output `a, b = func(...)`)
+- [ ] No `cpspch` usage
 - [ ] No `cpspch` usage
 - [ ] `expseg` values are all > 0
 - [ ] `linseg`/`expseg` argument count is odd (value, dur, value, dur, ..., value)

@@ -54,7 +54,7 @@ endop
 ; Schedule once with a duration long enough to cover the entire performance.
 ; ─────────────────────────────────────────────────────────────────────────────
 instr Reverb
-  aRevL, aRevR reverbsc gaRevL, gaRevR, 0.82, 8000
+  aRevL, aRevR = reverbsc(gaRevL, gaRevR, 0.82, 8000)
   out(aRevL * 0.25, aRevR * 0.25)
   clear gaRevL, gaRevR
 endin
@@ -104,13 +104,13 @@ instr ElPiano
   ; ── Pair 1: Attack / Clang (Op2 ratio=14 → Op1 ratio=1) ────────────────────
   ; PM index β₁: high at attack → drops fast → clang disappears in ~60–80 ms
   kIdx1    = linseg(3.2 * iBright, 0.06, 0.4 * iBright, 1.5, 0.0)
-  aCar1    = PMPair(iFreq, 14.0, kIdx1)
+  aCar1    = pm_pair(iFreq, 14.0, kIdx1)
 
   ; ── Pair 2: Body / Sustain (Op4 ratio=1 → Op3 ratio=1) ─────────────────────
   ; PM index β₂: moderate at attack, decays slowly toward zero to give
   ; harmonic richness that mellows over the note's lifetime.
   kIdx2    = linsegr(1.8 * iBright, p3 * 0.7, 0.3 * iBright, p3 * 0.3, 0.0, 0.5, 0.0)
-  aCar2    = PMPair(iFreq, 1.0, kIdx2)
+  aCar2    = pm_pair(iFreq, 1.0, kIdx2)
 
   ; ── Mix ─────────────────────────────────────────────────────────────────────
   ; Both pairs contribute equally; clang pair handles attack, body pair sustains.

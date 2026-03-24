@@ -86,7 +86,7 @@ instr Master
   aR = chnget:a("voices_R")
 
   ; Soft reverb for space
-  aRevL, aRevR reverbsc aL, aR, 0.78, 9000
+  aRevL, aRevR = reverbsc(aL, aR, 0.78, 9000)
 
   aOutL = aL * 0.7 + aRevL * 0.3
   aOutR = aR * 0.7 + aRevR * 0.3

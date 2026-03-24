@@ -221,9 +221,9 @@ kEnv = linsegr(0, 0.01, 1, 0.1, 0.7, 0.2, 0)
 kEnv = transegr(0, 0.01, 0, 1, 0.2, -4.2, 0.7, 0.3, -4.2, 0)
 pan_verb_mix(aSig, 0.5, 0.2)
 
-; Statement style — ONLY for multi-output opcodes
-aL, aR reverbsc aDryL, aDryR, kFeedback, kCutoff
-aLP zdf_2pole aSig, kCutoff, kRes
+; Multi-output opcodes use tuple assignment
+aL, aR = reverbsc(aDryL, aDryR, kFeedback, kCutoff)
+aLP, aBP, aHP = zdf_2pole(aSig, kCutoff, kRes)
 ```
 
 **Type disambiguation** — when an opcode is polymorphic, use `:type` suffix:

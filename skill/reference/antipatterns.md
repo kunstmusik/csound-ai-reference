@@ -234,7 +234,7 @@ endin
 
 instr 99  ; master — runs after all voices
   aIn = gaReverb
-  aRevL, aRevR reverbsc aIn, aIn, 0.85, 8000
+  aRevL, aRevR = reverbsc(aIn, aIn, 0.85, 8000)
   out(aRevL, aRevR)
   clear gaReverb    ; reset accumulator each k-period
 endin
@@ -273,7 +273,7 @@ aRev  reverbsc aSig, 0.85, 8000   ; wrong: missing second input channel
 
 **Correct:**
 ```csound
-aRevL, aRevR  reverbsc aSig, aSig, 0.85, 8000   ; stereo: input L and R
+aRevL, aRevR = reverbsc(aSig, aSig, 0.85, 8000)   ; stereo: input L and R (tuple assignment)
 ```
 
 ---
@@ -439,9 +439,9 @@ iFreq = cpsmidi()          ; only in MIDI-triggered instruments (reads from even
 
 ---
 
-## 19. Old-Style Statement Syntax for Single-Output Opcodes
+## 19. Old-Style Statement Syntax for Opcodes
 
-All single-output opcodes — including envelopes — must use functional calling style. The only exception is multi-output opcodes like `reverbsc` and `zdf_2pole`.
+All opcodes — single-output and multi-output — use functional calling style.
 
 **Wrong:**
 ```csound
@@ -457,6 +457,7 @@ kEnv = transegr(0, 0.01, 0, 1, 0.1, -4.2, 0.7, 0.3, -4.2, 0)
 kEnv = linsegr(0, 0.01, 1, 0.1, 0.7, 0.2, 0)
 kEnv = transegr(0, 0.01, 0, 1, 0.2, -4, 0.7, 0.3, -4, 0)
 aSig = vco2(0.5, 440)
+aL, aR = reverbsc(aSig, aSig, 0.8, 8000)  ; multi-output: tuple assignment
 ```
 
-**Rule:** If an opcode returns a single value, always use `variable = opcode(args)`. Statement style (`variable opcode args`) is only acceptable for multi-output opcodes where `=` is not possible.
+**Rule:** All opcodes use functional calling style. Single-output opcodes use simple assignment (`x = func(...)`), multi-output opcodes use tuple assignment (`a, b = func(...)`).

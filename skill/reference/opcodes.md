@@ -108,8 +108,8 @@ For user-defined opcodes, prefer lowercase names by default. Use `snake_case` wh
 - `tone(aSig, kCf)` / `atone(aSig, kCf)` — 1-pole LP/HP
 
 ### Reverb & Delay
-- `aL, aR reverbsc aInL, aInR, kFbLvl, kFco` — stereo reverb (statement style — multi-output)
-- `aL, aR freeverb aInL, aInR, kRoomSize, kHFDamp` — Freeverb
+- `aL, aR = reverbsc(aInL, aInR, kFbLvl, kFco)` — stereo reverb (tuple assignment for multi-output)
+- `aL, aR = freeverb(aInL, aInR, kRoomSize, kHFDamp)` — Freeverb (tuple assignment)
 - `vdelay(aSig, aDel, iMaxDel)` — variable delay (ms)
 
 ### Distortion / Waveshaping

@@ -60,8 +60,7 @@ opcode filtered_voice(aSig, kCutoffBase, kFilterEnv, iEnvAmt, kRes):a
   ; Clamp to safe range: 20 Hz – 20 kHz
   kCutoff = limit(kCutoff, 20, 20000)
 
-  ; zdf_2pole returns LP, BP, HP — use LP output
-  aLP  zdf_2pole  aSig, kCutoff, kRes
+  aLP = zdf_2pole(aSig, kCutoff, kRes)
 
   xout aLP
 endop

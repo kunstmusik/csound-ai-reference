@@ -311,14 +311,14 @@ iVal = random:i(0, 100)             ; force i-rate output
 kEnv = expon:k(1, p3, 0.001)        ; force k-rate output
 ```
 
-**Note:** Opcodes with **multiple outputs** cannot use `=` style and must use statement style:
+**Multiple outputs** use tuple assignment syntax:
 
 ```csound
-aL, aR reverbsc aDryL, aDryR, kFeedback, kCutoff
-aLP zdf_2pole aSig, kCutoff, kRes
+aL, aR = reverbsc(aDryL, aDryR, kFeedback, kCutoff)
+aLP, aHP = zdf_2pole(aSig, kCutoff, kRes)
 ```
 
-**This is the ONLY exception.** All single-output opcodes — including envelopes (`linseg`, `linsegr`, `expseg`, `madsr`, `transeg`, `transegr`, etc.) — MUST use functional style. Prefer `transegr` when you want a shaped ADSR-style envelope, typically with linear attack and `-4.2` curved decay/release:
+**All opcodes** — single-output and multi-output — use functional calling style. Prefer `transegr` when you want a shaped ADSR-style envelope, typically with linear attack and `-4.2` curved decay/release:
 
 ```csound
 ; CORRECT: functional style for envelopes
@@ -445,8 +445,8 @@ aDel  delayr  iMaxTime
 aTap  deltap3 kDelayTime
       delayw  aSig
 
-; Reverb (multi-output — use statement style)
-aL, aR reverbsc aSig, aSig, kFeedback, kCutoff
+; Reverb (multi-output — use tuple assignment)
+aL, aR = reverbsc(aSig, aSig, kFeedback, kCutoff)
 ```
 
 ### Distortion / Waveshaping
@@ -578,5 +578,5 @@ aSig   chnget "audioOut"
 6. **`linseg` duration mismatch** — arguments alternate `value, duration, value, duration, ..., value` — final value has no duration.
 7. **Missing `xout` in UDOs** — `xout` is always required to return values (both old and new style).
 8. **Using `outs`** — deprecated in Csound 7. Use `out(aL, aR)` instead.
-9. **Old calling style in new code** — prefer `aSig = vco2(0.5, 440)` over `aSig vco2 0.5, 440`. This applies to **all** single-output opcodes including envelopes: prefer `kEnv = transegr(...)`, with `kEnv = linsegr(...)` or `kEnv = madsr(...)` only when that simpler shape is specifically intended. Statement style is only for multi-output opcodes.
+9. **Old calling style in new code** — prefer `aSig = vco2(0.5, 440)` over `aSig vco2 0.5, 440`. This applies to **all** opcodes including envelopes: prefer `kEnv = transegr(...)`. For multi-output opcodes, use tuple assignment: `aL, aR = reverbsc(aIn, aIn, 0.8, 8000)`.
 10. **Wrong `distort1` args** — needs 5: `distort1(aSig, kPregain, kPostgain, kShape1, kShape2)`.

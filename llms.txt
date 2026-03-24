@@ -179,7 +179,7 @@ Use `:type` suffix for polymorphic opcodes: `linen:a()`, `random:i()`, `expon:a(
 - `aOut = butlp(aSig, kCutoff)` — Butterworth lowpass
 
 ### Effects
-- `aL, aR reverbsc aInL, aInR, kFeedback, kCutoff` — stereo reverb
+- `aL, aR = reverbsc(aInL, aInR, kFeedback, kCutoff)` — stereo reverb (tuple assignment)
 - `aDel = vdelay(aSig, kDelayMs, iMaxMs)` — variable delay
 - `aOut = distort1(aSig, kPregain, kPostgain, kShape1, kShape2)` — waveshaping distortion (5 required args)
 
@@ -212,7 +212,7 @@ e
 6. Wrong argument count in `linseg` (must be odd: val,dur,val,dur,...,val)
 7. Missing `xout` in UDOs
 8. Using `outs` (deprecated in Csound 7) — use `out(aL, aR)` instead
-9. Old statement style for single-output opcodes — use `kEnv = transegr(...)` not `kEnv transegr ...`. This applies to ALL single-output opcodes including envelopes (`linseg`, `linsegr`, `madsr`, `transegr`, etc.). Statement style is only for multi-output opcodes.
+9. Old statement style for opcodes — use `kEnv = transegr(...)` not `kEnv transegr ...`. This applies to ALL opcodes including envelopes (`linseg`, `linsegr`, `madsr`, `transegr`, etc.) and multi-output opcodes (use tuple assignment: `aL, aR = reverbsc(...)`).
 10. Not clearing global accumulators (`clear gaReverb`)
 11. Wrong `distort1` args (needs 5: aSig, kPregain, kPostgain, kShape1, kShape2)
 12. Writing recursive signal processors as one a-rate expression instead of a per-sample `while kindx < ksmps` loop with explicit state updates

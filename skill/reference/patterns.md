@@ -123,7 +123,7 @@ opcode stereo_reverb(aDryL, aDryR, kRoomSize, kWetMix):(a,a)
   ; Clamp room size to valid range
   kRoom = (kRoomSize > 0.98) ? 0.98 : kRoomSize
 
-  aWetL, aWetR reverbsc aDryL, aDryR, kRoom, 8000
+  aWetL, aWetR = reverbsc(aDryL, aDryR, kRoom, 8000)
 
   aOutL = ntrpol(aDryL, aWetL, kWetMix)
   aOutR = ntrpol(aDryR, aWetR, kWetMix)
@@ -382,7 +382,7 @@ instr Master  ; always-on mixer
   aDrum  chnget "drumBus"
 
   ; Apply reverb to synth
-  aRevL, aRevR reverbsc aSynth, aSynth, 0.8, 8000
+  aRevL, aRevR = reverbsc(aSynth, aSynth, 0.8, 8000)
   aMixL = aSynth * 0.6 + aRevL * 0.4 + aDrum * 0.9
   aMixR = aSynth * 0.6 + aRevR * 0.4 + aDrum * 0.9
 
@@ -404,7 +404,7 @@ instr PlayFile
   iAmp   = ampdbfs(-6)
   iSpeed = 1.0            ; playback speed (1 = normal)
 
-  aSigL, aSigR diskin2 SFile, iSpeed, 0, 1  ; loop=1
+  aSigL, aSigR = diskin2(SFile, iSpeed, 0, 1)  ; loop=1
 
   out(aSigL * iAmp, aSigR * iAmp)
 endin
