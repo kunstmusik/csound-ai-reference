@@ -475,6 +475,22 @@ kVal = tab(kIndex, iFtable)                    ; read ftable at k-rate
 
 ---
 
+## Checking and Measuring
+
+```csound
+; Check syntax without rendering. Exit 1 if the orchestra does not parse (the line is named);
+; exit 0 does not mean the file is fine: score errors, a missing instrument or a missing table
+; can pass the check and only show up when rendering.
+;   csound --syntax-check-only file.csd
+
+; Loudness in LUFS (ITU-R BS.1770), mono or stereo; outputs in this order
+kMomentary, kIntegrated, kShortTerm = lufs(kReset, aL, aR)   ; kReset = 1 on the first k-cycle only
+```
+
+`rms` and `peak` are level meters and `balance` matches one signal's level to another's. For `fout`, formats 10 to 19 name the container: 14 is a 16-bit WAV, 16 a 32-bit float WAV, 18 a 24-bit WAV (11 fails). Where an opcode has several output rates, write the rate: `buthp(dust2:a(0.1, 6), 1500)`. See `skill/examples/utility/measure-loudness.csd`.
+
+---
+
 ## Score Syntax
 
 ```csound

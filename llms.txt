@@ -216,6 +216,15 @@ e
 10. Not clearing global accumulators (`clear gaReverb`)
 11. Wrong `distort1` args (needs 5: aSig, kPregain, kPostgain, kShape1, kShape2)
 12. Writing recursive signal processors as one a-rate expression instead of a per-sample `while kindx < ksmps` loop with explicit state updates
+13. Nesting `dust2(...)` in an audio-rate filter call without a suffix picks the k-rate form: write `dust2:a(...)`
+14. Assuming `fout` format 14 is float: it is a 16-bit WAV; use 16 for 32-bit float
+
+## Checking and Measuring
+
+- Check syntax without rendering: `csound --syntax-check-only file.csd` (exit 1 if the orchestra does not parse, with the line named; exit 0 does not mean the file is fine, since score errors, a missing instrument or a missing table can pass and only show up when rendering)
+- Loudness in LUFS (ITU-R BS.1770), mono or stereo: `kMomentary, kIntegrated, kShortTerm = lufs(kReset, aL, aR)`; `kReset = 1` on the first k-cycle only
+- Level meters: `rms`, `peak`; `balance` matches one signal's level to another's
+- `fout("name", iFormat, aSig)`: formats 10 to 19 name the container; 14 is a 16-bit WAV, 16 a 32-bit float WAV, 18 a 24-bit WAV; 11 fails
 
 ## Consulting the Csound Manual
 

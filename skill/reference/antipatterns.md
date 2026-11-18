@@ -461,3 +461,42 @@ aL, aR = reverbsc(aSig, aSig, 0.8, 8000)  ; multi-output: tuple assignment
 ```
 
 **Rule:** All opcodes use functional calling style. Single-output opcodes use simple assignment (`x = func(...)`), multi-output opcodes use tuple assignment (`a, b = func(...)`).
+
+---
+
+## 20. Letting a Nested Call Pick the k-Rate Form of `dust2`
+
+`dust2` has a k-rate and an a-rate form. Written without a suffix inside another call, it resolves to the k-rate form, and an audio-rate filter such as `buthp` then fails to compile. Use the `:a` suffix (see 17), or assign to an a-variable first.
+
+**Wrong:**
+```csound
+aClick = buthp(dust2(0.1, 6), 1500)   ; ERROR: opcode 'buthp' for expression with arg types k, c not found
+```
+
+**Correct:**
+```csound
+aClick = buthp(dust2:a(0.1, 6), 1500)
+
+aDust = dust2(0.1, 6)                 ; assigned to an a-variable: a-rate form
+aClick = buthp(aDust, 1500)
+```
+
+**Rule:** For opcodes with several output rates, state the rate with `:a`, `:k` or `:i`. `upsamp(dust2(0.1, 6))` also compiles, but it stretches each one-sample click into a block of `ksmps` samples, which sounds different. `csound --syntax-check-only file.csd` reports the failure without rendering.
+
+---
+
+## 21. Guessing `fout` Format Numbers
+
+**Wrong:**
+```csound
+fout("mix", 14, aL, aR)       ; writes a 16-bit WAV, not float
+fout("mix", 11, aL, aR)       ; fails: "Format not recognised", the run exits 1
+```
+
+**Correct:**
+```csound
+fout("mix.wav", 16, aL, aR)   ; 32-bit float WAV
+fout("mix.wav", 18, aL, aR)   ; 24-bit WAV
+```
+
+**Rule:** For formats 10 to 19 the number decides container and sample type; use 16 for 32-bit float and 18 for 24-bit. Formats 2 to 9 follow the render's file type. See the table in `opcodes.md` ("Writing Audio Files from an Instrument").
