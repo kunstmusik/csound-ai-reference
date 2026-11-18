@@ -13,6 +13,10 @@ Use this skill whenever generating, editing, or reviewing **Csound** code (`.csd
 6. Prefer CamelCase names for instruments
 7. If comments are generated for definitions, use csdoc `/** ... */` docblocks with `@param` and `@return`
 
+## After Writing Code
+
+Run `csound --syntax-check-only file.csd` before rendering: it checks the orchestra and score syntax without rendering and exits 1 if the orchestra does not parse. Exit 0 does not mean the file is fine: score errors, a missing instrument or a missing table can pass and only show up when rendering. To check a render without listening, measure it with `lufs` (see `examples/utility/measure-loudness.csd`).
+
 ## Rate Prefix Rules (Non-Negotiable)
 
 Every variable name prefix determines its update rate:

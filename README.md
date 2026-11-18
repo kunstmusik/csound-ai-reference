@@ -45,6 +45,7 @@ csound-ai-reference/
 │   └── examples/
 │       ├── synthesis/         # Working .csd synthesis examples
 │       ├── effects/           # Working .csd effects examples
+│       ├── utility/           # Working .csd examples for measuring and checking
 │       └── realtime/          # Real-time / MIDI examples
 └── dev/                   # Internal: eval prompts, test results
 ```

@@ -149,6 +149,25 @@ kEnv = linseg(0, 0.05, 1, 0.2, 0.6, 0.3, 0)
 
 ---
 
+## Eval 8: Check a Render Without Listening
+
+**Prompt:**
+> Write a Csound 7 .csd that plays a 1 kHz sine at -20 dBFS for 4 seconds and then at -40 dBFS for 4 seconds, and prints its momentary, integrated and short-term loudness once a second. You cannot listen to it. Also say how to check the file's syntax without rendering.
+
+**Must-have in correct output:**
+- `kMomentary, kIntegrated, kShortTerm = lufs(kReset, aSig, aSig)` in functional tuple-assignment style, with the outputs used in that order
+- `kReset` not held at 1 (set to 1 on the first k-cycle only, for example `timeinstk() == 1`, or left at 0)
+- `printks` (or similar) for the output
+- `csound --syntax-check-only file.csd` as the way to check syntax
+
+**Common AI failures:**
+- Not knowing `lufs` exists and hand-rolling an RMS-based "loudness" instead
+- Assuming Csound has no way to check syntax without a full render
+- Holding `kReset` at 1, which keeps the integrated value at its floor
+- Mixing up the order of the three outputs (the integrated value stays near -20 after the level drops; the momentary value follows it down)
+
+---
+
 ## Scoring Rubric
 
 For each eval:

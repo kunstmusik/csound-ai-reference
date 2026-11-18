@@ -147,6 +147,25 @@ For user-defined opcodes, prefer lowercase names by default. Use `snake_case` wh
 - `iFn = ftgen(0, 0, iSize, iGenNum, ...)` — create function table
 - `tab(kNdx, iFn)` / `tab_i(iNdx, iFn)` — read table
 
+### Metering and Checking
+- `kMomentary, kIntegrated, kShortTerm = lufs(kReset, aL [, aR])` — ITU-R BS.1770 loudness in LUFS, mono or stereo. The outputs come in that order: momentary (400 ms window), integrated (gated, since the reset) and short-term (3 s window). Pass `kReset = 1` on the first k-cycle only. In tests, a stereo 1 kHz sine at -20 dBFS read `-20.1` integrated after 6 s, and `-20.3` when it dropped to -40 dBFS for the last 4 of 8 s; ffmpeg's `ebur128` read `-20.0` and `-20.2` for the same files. Working example: `skill/examples/utility/measure-loudness.csd`.
+- `rms`, `peak` — level meters; `balance` — matches one signal's level to another's. See https://csound.com/manual/opcodes/rms/ , https://csound.com/manual/opcodes/peak/ and https://csound.com/manual/opcodes/balance/
+- `csound --syntax-check-only file.csd` — stops after checking the orchestra and score syntax, without rendering. It exits 1 if the orchestra does not parse and names the line, for example `unable to find opcode with name: foobarz, line 11, columns 10-17`. Do not read exit 0 as "the file is fine": a note for an instrument that does not exist (`i "Missing" 0 1`) or a missing function table is only found when rendering (that run exits 1), and a score line with a non-numeric p-field (`i 1 xyz 1`) printed only `section 1: at position 6` and still exited 0.
+
+### Writing Audio Files from an Instrument (`fout`)
+`fout("name", iFormat, aSig [, aSig2 ...])` — the format number is not intuitive. Measured with Csound 7.0 (container and sample type read back with ffprobe):
+
+| iFormat | File | Samples |
+|---------|------|---------|
+| 14 | WAV | 16-bit integer |
+| 18 | WAV | 24-bit integer |
+| 15 | WAV | 32-bit integer |
+| 16 | WAV | 32-bit float |
+| 19 | WAV | 64-bit float |
+| 12 / 13 | WAV | A-law / mu-law |
+
+`10` is also a 16-bit WAV. Formats 10 to 19 write the container they name whatever the render options are. Formats 2 to 9 follow the render's file type instead: with `-W` they write little-endian WAV, with `-n` or no `-W` big-endian AIFF (`4` = 16-bit, `8` = 24-bit, `6` = 32-bit float). `0` and `1` write headerless raw data that ffprobe cannot read (4 and 2 bytes per sample). `11` does not work: Csound prints `Format not recognised`, the note fails with an init error, and the run exits 1 with a 0-byte file (`--syntax-check-only` does not catch it). If a mix has to keep more than 16 bits, use 16 (float) or 18 (24-bit), not 14.
+
 ### Score / Event Generation
 - `event("i", kInsNum, kDelay, kDur [, kP4 ...])` — trigger instrument from orchestra
 - `schedule(iInsNum, iDelay, iDur [, iP4 ...])` — schedule at i-time
